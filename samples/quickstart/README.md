@@ -6,7 +6,7 @@ This sample ([quickstart.py](quickstart.py)) demonstrate how to use PromptLab to
 
 Install the python package using pip. It's highly recommended to use a virtual environment. 
 
-    pip install promptlab
+    pip install promptlab ragas
 
 ## Initialize PromptLab 
 
