@@ -1,6 +1,7 @@
 from typing import overload, TypeVar
 from datetime import datetime
 import json
+import re
 import os
 import uuid
 
@@ -16,24 +17,69 @@ class Asset:
 
     def __init__(self, tracer: Tracer):        
         self.tracer = tracer
+        self.asset_names = {"prompt_template": [], "dataset": []}
     
     @overload
-    def create_or_update(self, asset: Dataset) -> Dataset:
+    def create_new_asset(self, asset: Dataset) -> Dataset:
         ...
     
     @overload
-    def create_or_update(self, asset: PromptTemplate) -> PromptTemplate:
+    def create_asset_version(self, asset: PromptTemplate) -> PromptTemplate:
+        ...
+    
+    @overload
+    def create_new_asset(self, asset: Dataset) -> Dataset:
+        ...
+    
+    @overload
+    def create_asset_version(self, asset: PromptTemplate) -> PromptTemplate:
         ...
 
     @overload
-    def deploy(self, asset: PromptTemplate, target_dir: str):
+    def deploy(self, asset: PromptTemplate, target_dir: str) -> None:
         ...
-    
-    def create_or_update(self, asset: T) -> T:
-
+        
+    @staticmethod
+    def is_valid_name(name: str) -> bool:
+        """
+        Check if the name is valid.
+        """
+        return bool(re.match(r'^[a-zA-Z][a-zA-Z0-9_-]*$', name))
+        
+    def create_new_asset(self, asset_name: str, asset: T) -> T:
+        """
+        Create a new asset with a given name.
+        """
+        if not Asset.is_valid_name(asset_name):
+            raise ValueError("Name must begin with a letter and use only alphanumeric, underscore, or hyphen.")
         if isinstance(asset, Dataset):
+            if asset_name in self.asset_names["dataset"]:
+                raise ValueError(f"Asset with name {asset_name} already exists.")
+            self.asset_names["dataset"].append(asset_name)
             return self._handle_dataset(asset)
         elif isinstance(asset, PromptTemplate):
+            if asset_name in self.asset_names["prompt_template"]:
+                raise ValueError(f"Asset with name {asset_name} already exists.")
+            self.asset_names["prompt_template"].append(asset_name)
+            return self._handle_prompt_template(asset)
+        else:
+            raise TypeError(f"Unsupported asset type: {type(asset)}")
+        
+    def create_asset_version(self, asset_name: str, asset: T) -> T:
+        """
+        Create a new version of an existing asset.
+        """
+        if not Asset.is_valid_name(asset_name):
+            raise ValueError("Name must begin with a letter and use only alphanumeric, underscore, or hyphen.")
+        if isinstance(asset, Dataset):
+            if asset_name not in self.asset_names["dataset"]:
+                raise ValueError(f"Asset with name {asset_name} does not exist.")
+            self.asset_names["dataset"].append(asset_name)
+            return self._handle_dataset(asset)
+        elif isinstance(asset, PromptTemplate):
+            if asset_name not in self.asset_names["prompt_template"]:
+                raise ValueError(f"Asset with name {asset_name} does not exist.")
+            self.asset_names["prompt_template"].append(asset_name)
             return self._handle_prompt_template(asset)
         else:
             raise TypeError(f"Unsupported asset type: {type(asset)}")
@@ -42,11 +88,12 @@ class Asset:
 
         timestamp = datetime.now().isoformat()
         if dataset.id is not None:
-            dataset_record = self.tracer.db_client.fetch_data(SQLQuery.SELECT_ASSET_BY_ID_QUERY, (dataset.id,dataset.id))[0]
+            dataset_record = self.tracer.db_client.fetch_data(SQLQuery.SELECT_ASSET_BY_ID_QUERY, (dataset.name,dataset.name))[0]
 
             dataset.name = dataset_record['asset_name']
             dataset.description = dataset_record['asset_description'] if dataset.description is None else dataset.description           
             dataset.version = dataset_record['asset_version'] + 1
+            dataset.id = str(uuid.uuid4()) # create a new_id for the new verison
 
             binary = dataset_record['asset_binary'] if dataset.file_path is None else {"file_path": dataset.file_path}
 
@@ -68,14 +115,16 @@ class Asset:
         timestamp = datetime.now().isoformat()
 
         if template.id is not None:
-            prompt_template = self.tracer.db_client.fetch_data(SQLQuery.SELECT_ASSET_BY_ID_QUERY, (template.id,template.id))[0]
+            prompt_template = self.tracer.db_client.fetch_data(SQLQuery.SELECT_ASSET_BY_ID_QUERY, (template.name,template.name))[0]
             system_prompt, user_prompt, prompt_template_variables = Utils.split_prompt_template(prompt_template['asset_binary'])
-
+            
             template.name = prompt_template['asset_name']
             template.description = prompt_template['asset_description'] if template.description is None else template.description
             template.system_prompt = system_prompt if template.system_prompt is None else template.system_prompt
             template.user_prompt = user_prompt if template.user_prompt is None else template.user_prompt
             template.version = prompt_template['asset_version'] + 1
+            template.id = str(uuid.uuid4()) # create a new_id for the new verison
+
             binary = f'''
                 <<system>>
                     {template.system_prompt}
