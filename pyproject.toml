@@ -24,7 +24,11 @@ dependencies = [
     "ragas>=0.2.0",
     "ollama>=0.4.7",
     "langchain_ollama>=0.2.3",
-    "langchain-ollama"
+    "langchain-ollama",
+    "asyncio>=3.4.3",
+    "aiohttp>=3.8.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0"
 ]
 requires-python = ">=3.8"
 
@@ -39,4 +43,4 @@ promptlab = ["web/*.html"]
 where = ["src"]
 
 [project.scripts]
-promptlab = "promptlab.cli:main" 
+promptlab = "promptlab.cli:main"

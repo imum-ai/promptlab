@@ -171,3 +171,5 @@ cython_debug/
 .pypirc
 test/temp.py
 test/test_core.py
+
+.idea

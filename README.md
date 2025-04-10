@@ -1,5 +1,5 @@
 <div align="center">
-    <img alt="logo" src="https://raw.githubusercontent.com/imum-ai/promptlab/main/img/logo.png" style="height:200px">
+    <img alt="logo" src="img/logo-new.png" style="height:300px">
     <h1>PromptLab</h1>
     <p>A free, lightweight, open-source experimentation tool for Gen AI applications</p>
     <a href="https://pypi.org/project/promptlab/"><img src="https://img.shields.io/pypi/v/promptlab.svg" alt="PyPI Version"></a>
@@ -33,7 +33,7 @@ With PromptLab, you can:
 - Deploy optimized prompts to production
 
 <div align="center">
-    <img alt="PromptLab Studio" src="https://raw.githubusercontent.com/imum-ai/promptlab/main/img/studio-home.png" style="max-width:800px">
+    <img alt="PromptLab Studio" src="img/studio-home.png" style="max-width:800px">
 </div>
 
 ## Features ✨
@@ -46,6 +46,7 @@ With PromptLab, you can:
 - **Visual Studio**: Compare experiments and track assets through a local web interface
 - **Multiple Model Support**: Works with Azure OpenAI, Ollama, DeepSeek and more
 - **Version Control**: Automatic versioning of all assets for reproducibility
+- **Async Support**: Run experiments and invoke models asynchronously for improved performance
 
 ## Installation 📦
 
@@ -122,6 +123,32 @@ pl.experiment.run(experiment_config)
 pl.studio.start(8000)
 ```
 
+### Async Support
+
+PromptLab also supports asynchronous operations:
+
+```python
+import asyncio
+from promptlab import PromptLab
+
+async def main():
+    # Initialize PromptLab
+    tracer_config = {
+        "type": "sqlite",
+        "db_file": "./promptlab.db"
+    }
+    pl = PromptLab(tracer_config)
+
+    # Run experiment asynchronously
+    await pl.run_experiment_async(experiment_config)
+
+    # Start the PromptLab Studio asynchronously
+    await pl.start_studio_async(8000)
+
+# Run the async main function
+asyncio.run(main())
+```
+
 ## Core Concepts 🧩
 
 ### Tracer
@@ -148,6 +175,7 @@ A local web interface for visualizing experiments and comparing results.
 
 - [Quickstart](https://github.com/imum-ai/promptlab/tree/main/samples/quickstart): Basic usage of PromptLab
 - [Custom Metric](https://github.com/imum-ai/promptlab/tree/main/samples/custom_metric): Creating custom evaluation metrics
+- [Async Example](https://github.com/imum-ai/promptlab/tree/main/samples/async_example): Using async functionality for improved performance
 
 ## Documentation 📖
 
@@ -157,6 +185,23 @@ For comprehensive documentation, visit our [Documentation Page](https://github.c
 
 - [Evaluating prompts locally with Ollama and PromptLab](https://www.linkedin.com/pulse/evaluating-prompts-locally-ollama-promptlab-raihan-alam-i2iic)
 - [Creating custom prompt evaluation metrics with PromptLab](https://www.linkedin.com/pulse/promptlab-creating-custom-metric-prompt-evaluation-raihan-alam-o0slc)
+
+## CI/CD 🔄
+
+PromptLab uses GitHub Actions for continuous integration and testing:
+
+- **Unit Tests**: Run unit tests for all components of PromptLab
+- **Integration Tests**: Run integration tests that test the interaction between components
+- **Performance Tests**: Run performance tests to ensure performance requirements are met
+
+The tests are organized into the following directories:
+
+- `tests/unit/`: Unit tests for individual components
+- `tests/integration/`: Tests that involve multiple components working together
+- `tests/performance/`: Tests that measure performance
+- `tests/fixtures/`: Common test fixtures and utilities
+
+You can find more information about the CI/CD workflows in the [.github/workflows](https://github.com/imum-ai/promptlab/tree/main/.github/workflows) directory.
 
 ## Contributing 👥
 

@@ -1,0 +1,89 @@
+name: PromptLab Tests
+
+on:
+  push:
+    branches: [ main, feature/async-support ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e .
+        python -m pip install pytest pytest-asyncio pytest-cov
+
+    - name: Run unit tests with pytest
+      run: |
+        pytest tests/unit -v --cov=src/promptlab
+
+    - name: Run unit tests with unittest
+      run: |
+        python -m unittest discover tests/unit
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-22.04
+    needs: unit-tests
+    strategy:
+      matrix:
+        python-version: ['3.9']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e .
+        python -m pip install pytest pytest-asyncio
+
+    - name: Run integration tests
+      run: |
+        pytest tests/integration -v
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-22.04
+    needs: unit-tests
+    strategy:
+      matrix:
+        python-version: ['3.9']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e .
+        python -m pip install pytest pytest-asyncio
+
+    - name: Run performance tests
+      run: |
+        pytest tests/performance -v
