@@ -32,6 +32,7 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]>=0.18.0",
     "sqlalchemy",
+    "alembic>=1.8.0",
     "passlib",
     "python-jose",
     "python-multipart",
