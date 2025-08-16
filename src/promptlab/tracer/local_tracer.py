@@ -6,7 +6,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import joinedload
 
 from promptlab.types import ExperimentConfig, TracerConfig, Dataset, PromptTemplate
-from promptlab.sqlite.session import get_session, init_engine
+from promptlab.sqlite.session import get_session
+from promptlab.sqlite.database_manager import db_manager
 from promptlab.enums import AssetType
 from promptlab.sqlite.sql import SQLQuery
 from promptlab.tracer.tracer import Tracer
@@ -20,8 +21,8 @@ from promptlab.sqlite.models import Asset as ORMAsset
 
 class LocalTracer(Tracer):
     def __init__(self, tracer_config: TracerConfig):
-        db_url = f"sqlite:///{tracer_config.db_file}"
-        init_engine(db_url)
+        # Use centralized database manager
+        db_manager.initialize_database(tracer_config.db_file)
 
     def _create_asset(self, asset: ORMAsset):
         session = get_session()

@@ -32,6 +32,7 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]>=0.18.0",
     "sqlalchemy",
+    "alembic>=1.8.0",
     "passlib",
     "python-jose",
     "python-multipart",
@@ -46,7 +47,7 @@ Homepage = "https://github.com/imum-ai/promptlab"
 Issues = "https://github.com/imum-ai/promptlab/issues"
 
 [tool.setuptools.package-data]
-promptlab = ["web/*.html"]
+promptlab = ["web/*.html", "alembic.ini", "migrations/*", "migrations/**/*"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

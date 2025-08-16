@@ -1,1 +1,3 @@
 include src/web/index.html
+include src/promptlab/alembic.ini
+recursive-include src/promptlab/migrations *
